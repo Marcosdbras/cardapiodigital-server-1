@@ -1,0 +1,96 @@
+unit usuariosDao;
+
+interface
+ uses FireDac.comp.client, System.SysUtils, FireDac.DApt;
+
+ type tUsuariosDao = class
+     private
+         FConn:TFDConnection;
+
+    FCodigoUsuario: Integer;
+    FNome: string;
+    FCelular: string;
+    FEmail: string;
+    FTelefone: string;
+    FTipoUsuario: string;
+    FSenha: string;
+    FLogin: string;
+
+     public
+       constructor Create(conn:TFDConnection);
+
+       property CodigoUsuario: Integer read FCodigoUsuario write FCodigoUsuario;
+       property Nome:string read FNome write FNome;
+       property Celular:string read FCelular write FCelular;
+       property Email:string read FEmail write FEmail;
+       property Telefone:string read FTelefone write FTelefone;
+       property TipoUsuario:string read FTipoUsuario write FTipoUsuario;
+       property Senha:string read FSenha write FSenha;
+       property Login:string read FLogin write FLogin;
+
+       function validaLogin(out erro:string):Boolean;
+
+ end;
+
+implementation
+
+{ tUsuario }
+
+constructor tUsuariosDao.Create(conn: TFDConnection);
+begin
+  FConn := conn;
+end;
+
+function tUsuariosDao.validaLogin(out erro: string): Boolean;
+var Query:TFDQuery;
+begin
+  try
+
+
+    try
+
+        Query := TFDquery.Create(nil);
+        Query.Connection := FConn;
+        with Query do
+        begin
+           Active := false;
+           Sql.Clear;
+           Sql.Add('Select * from usuarios where (email = :email and senha = :senha)');
+           ParamByName('email').AsString := Login;
+           ParamByName('senha').AsString:=  Senha;
+           Active := true;
+
+           if RecordCount > 0 then
+           begin
+             Codigousuario := fieldbyname('codigo').AsInteger;
+             erro := '';
+             Result := True;
+           end
+           else
+           begin
+             codigoUsuario := 0;
+             erro := 'Login ou senha invalido';
+             Result := False;
+           end;
+        end;
+
+
+      except on ex : exception do
+          begin
+             erro := 'Erro ao validar login'+ex.Message;
+             Result := False;
+          end;
+
+      end;
+
+  finally
+    //freeandnil(Query);
+
+  end;
+
+
+
+
+end;
+
+end.
